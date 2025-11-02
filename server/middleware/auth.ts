@@ -20,6 +20,7 @@ export default defineEventHandler(async event => {
 
   const user = await verifyToken(token);
   if (!user) {
+    deleteCookie(event, 'auth_token');
     throw createError({
       statusCode: 401,
       message: 'Unauthorized',

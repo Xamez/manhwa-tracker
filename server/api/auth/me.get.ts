@@ -4,5 +4,13 @@ export default defineEventHandler(async event => {
   if (!token) {
     return null;
   }
-  return await verifyToken(token);
+
+  const user = await verifyToken(token);
+
+  if (!user) {
+    deleteCookie(event, 'auth_token');
+    return null;
+  }
+
+  return user;
 });
