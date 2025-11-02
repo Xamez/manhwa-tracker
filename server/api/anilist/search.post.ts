@@ -15,6 +15,7 @@ export default defineEventHandler(async event => {
           id
           title {
             english
+            romaji
           }
           coverImage {
             medium
@@ -64,10 +65,14 @@ export default defineEventHandler(async event => {
     const media = data.data.Page.media || [];
     return media
       .map(
-        (item: { id: number; title?: { english?: string }; coverImage?: { medium?: string } }) =>
+        (item: {
+          id: number;
+          title?: { english?: string; romaji?: string };
+          coverImage?: { medium?: string };
+        }) =>
           ({
             id: item.id,
-            title: item.title?.english || '',
+            title: item.title?.english || item.title?.romaji || null,
             coverImage: item.coverImage?.medium || null,
           }) as ManhwaSearchResult,
       )
