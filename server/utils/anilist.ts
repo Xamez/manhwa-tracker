@@ -7,6 +7,7 @@ export async function fetchAniListDetails(id: number): Promise<Manhwa | null> {
         id
         title {
           english
+          romaji
         }
         bannerImage
         description
@@ -68,7 +69,7 @@ export async function fetchAniListDetails(id: number): Promise<Manhwa | null> {
 
     return {
       id: media.id,
-      title: media.title?.english || '',
+      title: media.title?.english || media.synonyms?.[0] || media.title?.romaji || 'Unknown Title',
       bannerImage: media.bannerImage,
       coverImage: media.coverImage?.large,
       meanScore: media.meanScore,

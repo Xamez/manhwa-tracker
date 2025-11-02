@@ -17,6 +17,7 @@ export default defineEventHandler(async event => {
             english
             romaji
           }
+          synonyms
           coverImage {
             medium
           }
@@ -69,10 +70,11 @@ export default defineEventHandler(async event => {
           id: number;
           title?: { english?: string; romaji?: string };
           coverImage?: { medium?: string };
+          synonyms?: string[];
         }) =>
           ({
             id: item.id,
-            title: item.title?.english || item.title?.romaji || null,
+            title: item.title?.english || item.synonyms?.[0] || item.title?.romaji || null,
             coverImage: item.coverImage?.medium || null,
           }) as ManhwaSearchResult,
       )
