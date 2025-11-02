@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export default defineEventHandler(async event => {
-  const user = event.context.user;
+  const user: AuthUser = event.context.user;
   const id = getRouterParam(event, 'id');
 
   if (!id) {
@@ -17,6 +17,18 @@ export default defineEventHandler(async event => {
     const db = useDatabase();
     const userManhwasCollection = db.collection('user_manhwas');
     const manhwasCollection = db.collection('manhwas');
+
+    // Fetch user's preferred reading source from database
+    const userDoc = await db.collection('users').findOne({
+      _id: ObjectId.createFromHexString(user.id),
+    });
+
+    if (!userDoc) {
+      throw createError({
+        statusCode: 404,
+        message: 'User not found',
+      });
+    }
 
     const userManhwaDoc = await userManhwasCollection.findOne({
       userId: ObjectId.createFromHexString(user.id),
@@ -43,10 +55,13 @@ export default defineEventHandler(async event => {
     let suggestedUrl: string | null = null;
 
     if (!userManhwaDoc?.readingUrl) {
-      suggestedUrl = await suggestReadingUrl(manhwaData.title);
+      suggestedUrl = await suggestReadingUrl(userDoc.preferredReadingSource, manhwaData.title);
 
       if (!suggestedUrl && manhwaData.alternativeTitles.length > 0) {
-        suggestedUrl = await suggestReadingUrl(manhwaData.alternativeTitles[0]);
+        suggestedUrl = await suggestReadingUrl(
+          userDoc.preferredReadingSource,
+          manhwaData.alternativeTitles[0],
+        );
       }
     }
 

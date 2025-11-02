@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import type { Db } from 'mongodb';
+import { READING_SOURCES, type ReadingSource } from '../../shared/types/reading-source';
 
 const headers = {
   'User-Agent':
@@ -8,8 +9,8 @@ const headers = {
   'Accept-Language': 'en-US,en;q=0.5',
 };
 
-const DEMONIC_SCANS_URL = 'https://demonicscans.org';
-const MANHUA_US_URL = 'https://manhuaus.com';
+const DEMONIC_SCANS_URL = READING_SOURCES.demonicscans.url;
+const MANHUA_US_URL = READING_SOURCES.manhuaus.url;
 
 async function scrapLastChapterDemonicScans(url: string): Promise<number | null> {
   try {
@@ -26,7 +27,7 @@ async function scrapLastChapterDemonicScans(url: string): Promise<number | null>
 
     return parseInt(chapterNumber, 10);
   } catch (error) {
-    console.error('Error scraping last chapter from DemonicScans:', error);
+    console.error(`Error scraping last chapter from ${READING_SOURCES.demonicscans.name}:`, error);
     return null;
   }
 }
@@ -45,7 +46,7 @@ async function scrapLastChapterManhuaUS(url: string): Promise<number | null> {
 
     return parseInt(chapterNumber, 10);
   } catch (error) {
-    console.error('Error scraping last chapter from ManhuaUS:', error);
+    console.error(`Error scraping last chapter from ${READING_SOURCES.manhuaus.name}:`, error);
     return null;
   }
 }
@@ -75,7 +76,7 @@ export async function suggestReadingUrlDemonicScans(manhwaTitle: string): Promis
 
     return null;
   } catch (error) {
-    console.error('Error suggesting reading URL from DemonicScans:', error);
+    console.error(`Error suggesting reading URL from ${READING_SOURCES.demonicscans.name}:`, error);
     return null;
   }
 }
@@ -103,15 +104,23 @@ export async function suggestReadingUrlManhuaUS(manhwaTitle: string): Promise<st
 
     return null;
   } catch (error) {
-    console.error('Error suggesting reading URL from ManhuaUS:', error);
+    console.error(`Error suggesting reading URL from ${READING_SOURCES.manhuaus.name}:`, error);
     return null;
   }
 }
 
-export async function suggestReadingUrl(manhwaTitle: string): Promise<string | null> {
-  const sources: Array<(title: string) => Promise<string | null>> = [
-    suggestReadingUrlManhuaUS,
-    suggestReadingUrlDemonicScans,
+export async function suggestReadingUrl(
+  readingSource: ReadingSource,
+  manhwaTitle: string,
+): Promise<string | null> {
+  const sourceMap: Record<ReadingSource, (title: string) => Promise<string | null>> = {
+    manhuaus: suggestReadingUrlManhuaUS,
+    demonicscans: suggestReadingUrlDemonicScans,
+  };
+
+  const sources = [
+    sourceMap[readingSource],
+    ...Object.values(sourceMap).filter(fn => fn !== sourceMap[readingSource]),
   ];
 
   for (const getUrl of sources) {

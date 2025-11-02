@@ -80,7 +80,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { useAuthUser } from '@/composables/useAuthUser';
 
 definePageMeta({
   layout: 'unauthenticated',
@@ -112,7 +111,6 @@ async function handleRegister() {
       },
     });
     const { user } = response;
-    localStorage.setItem('user', JSON.stringify(user));
     setCurrentUser(user);
     await navigateTo('/');
   } catch (error: any) {

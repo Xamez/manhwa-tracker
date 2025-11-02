@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export default defineEventHandler(async event => {
-  const user = event.context.user;
+  const user: AuthUser = event.context.user;
   const body = await readBody(event);
   const { manhwaId, isFavorite } = body;
 

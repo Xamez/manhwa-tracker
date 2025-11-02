@@ -27,12 +27,12 @@ export default defineEventHandler(async event => {
     });
   }
 
-  const user: User = {
+  const authUser: AuthUser = {
     id: userDb._id.toString(),
     email: userDb.email,
     username: userDb.username,
   };
-  const token = await createToken(user);
+  const token = await createToken(authUser);
 
   setCookie(event, 'auth_token', token, {
     httpOnly: true,
@@ -41,6 +41,11 @@ export default defineEventHandler(async event => {
     maxAge: 60 * 60 * 24 * 7, // 1 week
     path: '/',
   });
+
+  const user: User = {
+    ...authUser,
+    preferredReadingSource: userDb.preferredReadingSource,
+  };
 
   return { user };
 });

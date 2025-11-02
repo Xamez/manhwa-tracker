@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { scrapAndUpdateLastChapter } from '~~/server/utils/scraper';
 
 export default defineEventHandler(async event => {
-  const user = event.context.user;
+  const user: AuthUser = event.context.user;
   const userManhwa = (await readBody(event)) as UserManhwa;
 
   if (!userManhwa.manhwa.id) {

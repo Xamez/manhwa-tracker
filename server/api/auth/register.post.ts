@@ -11,7 +11,9 @@ export default defineEventHandler(async event => {
 
   const db = useDatabase();
 
-  const existingUserByEmail = await db.collection('users').findOne({ email });
+  const existingUserByEmail = await db.collection('users').findOne({
+    email: { $regex: new RegExp(`^${email}$`, 'i') },
+  });
   if (existingUserByEmail) {
     throw createError({
       statusCode: 409,
@@ -20,7 +22,7 @@ export default defineEventHandler(async event => {
   }
 
   const existingUserByUsername = await db.collection('users').findOne({
-    username,
+    username: { $regex: new RegExp(`^${username}$`, 'i') },
   });
   if (existingUserByUsername) {
     throw createError({
@@ -35,6 +37,7 @@ export default defineEventHandler(async event => {
     username,
     email,
     password: hashedPassword,
+    preferredReadingSource: 'manhuaus' as ReadingSource,
     createdAt: new Date(),
   });
 
@@ -48,12 +51,12 @@ export default defineEventHandler(async event => {
     });
   }
 
-  const user: User = {
+  const authUser: AuthUser = {
     id: userDb._id.toString(),
     email: userDb.email,
     username: userDb.username,
   };
-  const token = await createToken(user);
+  const token = await createToken(authUser);
 
   setCookie(event, 'auth_token', token, {
     httpOnly: true,
@@ -61,6 +64,11 @@ export default defineEventHandler(async event => {
     secure: config.public.env === 'production',
     maxAge: 60 * 60 * 24 * 7, // 1 week
   });
+
+  const user: User = {
+    ...authUser,
+    preferredReadingSource: userDb.preferredReadingSource,
+  };
 
   return { user };
 });
