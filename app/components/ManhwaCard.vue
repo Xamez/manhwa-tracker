@@ -6,7 +6,7 @@
         userManhwa.manhwa.lastAvailableChapter > currentChapter
       "
       class="absolute -top-1 -right-1 z-20 flex size-3"
-      title="New chapters available"
+      :title="`${userManhwa.manhwa.lastAvailableChapter - currentChapter} New Chapter${userManhwa.manhwa.lastAvailableChapter - currentChapter > 1 ? 's' : ''} Available`"
     >
       <span
         class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"
@@ -84,8 +84,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const { userManhwa } = defineProps<{ userManhwa: UserManhwa }>();
 
