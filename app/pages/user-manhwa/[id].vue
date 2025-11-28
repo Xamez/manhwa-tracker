@@ -174,7 +174,7 @@
                 id="lastReadChapter"
                 v-model.number="userManhwaData.lastReadChapter"
                 type="number"
-                min="1"
+                min="0"
                 class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:ring-primary focus:border-white"
                 :class="{ 'pr-10 md:pr-4': userManhwaData.status === 'reading' }"
                 placeholder="1"
@@ -373,6 +373,15 @@ async function saveUserManhwa(redirect = true) {
 
   if (!userManhwaData.value.startedAt) {
     errorMessage.value = 'Please select a valid start date.';
+    return;
+  }
+
+  if (
+    isNaN(userManhwaData.value.lastReadChapter) ||
+    userManhwaData.value.lastReadChapter.toString().trim() === '' ||
+    userManhwaData.value.lastReadChapter < 0
+  ) {
+    errorMessage.value = 'Please enter a valid current chapter.';
     return;
   }
 
