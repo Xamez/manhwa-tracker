@@ -159,7 +159,7 @@
             <label for="lastReadChapter" class="flex items-center gap-2 text-sm font-medium mb-2">
               <span>Current Chapter</span>
               <a
-                v-if="userManhwaData.readingUrl && userManhwaData.lastReadChapter > 0"
+                v-if="userManhwaData.readingUrl"
                 :href="generateManhwaUrl(userManhwaData.readingUrl, userManhwaData.lastReadChapter)"
                 target="_blank"
                 class="text-primary hover:text-primary-lighter"
@@ -174,10 +174,10 @@
                 id="lastReadChapter"
                 v-model.number="userManhwaData.lastReadChapter"
                 type="number"
-                min="0"
+                min="1"
                 class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:ring-primary focus:border-white"
                 :class="{ 'pr-10 md:pr-4': userManhwaData.status === 'reading' }"
-                placeholder="0"
+                placeholder="1"
               />
               <button
                 v-if="userManhwaData.status === 'reading'"
@@ -316,7 +316,7 @@ const statusOptions = Object.keys(READING_STATUS).map(key => ({
 
 const userManhwaData = ref({
   status: 'reading' as ReadingStatus,
-  lastReadChapter: 0,
+  lastReadChapter: 1,
   rating: null as number | null,
   readingUrl: null as string | null,
   startedAt: new Date().toISOString().split('T')[0] as string,

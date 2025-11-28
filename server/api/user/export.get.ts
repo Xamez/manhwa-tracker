@@ -37,7 +37,7 @@ export default defineEventHandler(async event => {
 
       groupedManhwa[statusLabel].push({
         title: manhwaDoc.title,
-        chapter: doc.lastReadChapter || 0,
+        chapter: doc.lastReadChapter || 1,
       });
     }
 
