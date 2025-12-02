@@ -32,9 +32,18 @@ export default defineEventHandler(async event => {
     email: userDb.email,
     username: userDb.username,
   };
-  const token = await createToken(authUser);
+  const accessToken = await createAccessToken(authUser);
+  const refreshToken = await createRefreshToken(authUser);
 
-  setCookie(event, 'auth_token', token, {
+  setCookie(event, 'auth_token', accessToken, {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: config.public.env === 'production',
+    maxAge: 60 * 15, // 15 minutes
+    path: '/',
+  });
+
+  setCookie(event, 'refresh_token', refreshToken, {
     httpOnly: true,
     sameSite: 'strict',
     secure: config.public.env === 'production',

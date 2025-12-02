@@ -1,7 +1,7 @@
 export default defineEventHandler(async event => {
   const path = event.path || '';
 
-  if (path.startsWith('/api/auth/')) {
+  if (path.startsWith('/api/auth/') || path === '/api/user/me') {
     return;
   }
 
@@ -18,7 +18,7 @@ export default defineEventHandler(async event => {
     });
   }
 
-  const user = await verifyToken(token);
+  const user = await verifyAccessToken(token);
   if (!user) {
     deleteCookie(event, 'auth_token');
     throw createError({

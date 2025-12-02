@@ -8,7 +8,7 @@ export function setDatabase(database: Db) {
 
 export function useDatabase() {
   if (!db) {
-    throw new Error('Database not initialized. Make sure MongoDB plugin has loaded.');
+    throw new Error('Internal Server Error');
   }
   return db;
 }

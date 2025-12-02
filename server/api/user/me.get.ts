@@ -2,12 +2,11 @@ import { ObjectId } from 'mongodb';
 
 export default defineEventHandler(async event => {
   const token = getCookie(event, 'auth_token');
-
   if (!token) {
     return null;
   }
 
-  const authUser = await verifyToken(token);
+  const authUser = await verifyAccessToken(token);
 
   if (!authUser) {
     return null;
