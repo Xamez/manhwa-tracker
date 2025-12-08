@@ -14,7 +14,7 @@
               ? 'bg-primary text-white font-medium'
               : 'text-gray-400 hover:bg-gray-700',
           ]"
-          @click="toggleStatus(option.value)"
+          @click="toggleStatus(option.value, $event)"
         >
           <div class="flex justify-between">
             {{ option.label }}
@@ -157,17 +157,23 @@ function isStatusSelected(status: ReadingStatus | ''): boolean {
   return selectedStatuses.value.includes(status);
 }
 
-function toggleStatus(status: ReadingStatus | '') {
+function toggleStatus(status: ReadingStatus | '', event?: MouseEvent) {
   if (status === '') {
     selectedStatuses.value = [];
     return;
   }
 
-  const current = selectedStatuses.value;
-  if (current.includes(status)) {
-    selectedStatuses.value = current.filter(s => s !== status);
+  const isMultiSelect = event?.ctrlKey || event?.metaKey;
+
+  if (isMultiSelect) {
+    const current = selectedStatuses.value;
+    if (current.includes(status)) {
+      selectedStatuses.value = current.filter(s => s !== status);
+    } else {
+      selectedStatuses.value = [...current, status];
+    }
   } else {
-    selectedStatuses.value = [...current, status];
+    selectedStatuses.value = [status];
   }
 }
 
