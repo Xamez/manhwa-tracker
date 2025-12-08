@@ -10,6 +10,7 @@ export type UserManhwa = {
   lastReadChapter: number;
   readingUrl: string | null;
   isFavorite: boolean;
+  notes?: string | null;
   startedAt: Date;
   updatedAt: Date;
 };

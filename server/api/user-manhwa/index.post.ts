@@ -20,6 +20,11 @@ export default defineEventHandler(async event => {
     const manhwaId = userManhwa.manhwa.id;
     const now = new Date();
 
+    const existingUserManhwa = await userManhwasCollection.findOne({
+      userId: ObjectId.createFromHexString(user.id),
+      manhwaId,
+    });
+
     const manhwaDoc = await manhwasCollection.findOne({ id: manhwaId });
 
     if (!manhwaDoc) {
@@ -48,6 +53,16 @@ export default defineEventHandler(async event => {
         userManhwa.readingUrl,
         userManhwa.lastReadChapter,
       );
+    } else if (
+      userManhwa.readingUrl &&
+      (!existingUserManhwa || existingUserManhwa.readingUrl !== userManhwa.readingUrl)
+    ) {
+      await scrapAndUpdateLastChapter(
+        db,
+        manhwaId,
+        userManhwa.readingUrl,
+        manhwaDoc.lastAvailableChapter || userManhwa.lastReadChapter,
+      );
     }
 
     const userManhwaData = {
@@ -58,6 +73,7 @@ export default defineEventHandler(async event => {
       lastReadChapter: userManhwa.lastReadChapter,
       readingUrl: userManhwa.readingUrl,
       isFavorite: userManhwa.isFavorite,
+      notes: userManhwa.notes,
       startedAt: new Date(userManhwa.startedAt),
       lastReadAt: now,
       updatedAt: now,
@@ -85,6 +101,7 @@ export default defineEventHandler(async event => {
       lastReadChapter: result.lastReadChapter,
       readingUrl: result.readingUrl,
       isFavorite: result.isFavorite,
+      notes: result.notes,
       startedAt: result.startedAt,
       updatedAt: result.updatedAt,
     };

@@ -86,6 +86,7 @@ export default defineEventHandler(async event => {
       lastReadChapter: userManhwaDoc?.lastReadChapter ?? 1,
       readingUrl: userManhwaDoc?.readingUrl || suggestedUrl,
       isFavorite: userManhwaDoc?.isFavorite || false,
+      notes: userManhwaDoc?.notes || null,
       startedAt: userManhwaDoc?.startedAt || now,
       updatedAt: userManhwaDoc?.updatedAt || now,
     };
