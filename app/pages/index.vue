@@ -28,8 +28,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useSortPreferences } from '~/composables/useSortPreferences';
+import { sortManhwas } from '~/utils/sortManhwas';
 import { DEFAULT_FILTERS, FILTERS_STORAGE_KEY, type Filters } from '~~/shared/types/filters';
-import { READING_STATUS_ORDER } from '~~/shared/types/reading-status';
 
 const { data: userManhwas } = await useFetch<UserManhwa[]>('/api/user-manhwa', {
   key: 'user-manhwa',
@@ -38,6 +39,8 @@ const { data: userManhwas } = await useFetch<UserManhwa[]>('/api/user-manhwa', {
 const showMobileFilters = ref(false);
 
 const filters = ref<Filters>(DEFAULT_FILTERS);
+
+useSortPreferences(filters);
 
 onMounted(() => {
   if (import.meta.client) {
@@ -96,41 +99,7 @@ const filteredManhwas = computed(() => {
     result = result.filter(um => um.rating === null || um.rating >= filters.value.minRating);
   }
 
-  result.sort((a, b) => {
-    let comparison = 0;
-
-    switch (filters.value.sortBy) {
-      case 'updatedAt':
-        comparison = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
-        break;
-      case 'startedAt':
-        comparison = new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime();
-        break;
-      case 'rating':
-        comparison = (a.rating ?? 0) - (b.rating ?? 0);
-        break;
-      case 'title':
-        comparison = a.manhwa.title.localeCompare(b.manhwa.title);
-        break;
-      case 'meanScore':
-        comparison = (a.manhwa.meanScore ?? 0) - (b.manhwa.meanScore ?? 0);
-        break;
-      case 'status':
-        comparison = READING_STATUS_ORDER[a.status] - READING_STATUS_ORDER[b.status];
-        break;
-      case 'unreadChapters': {
-        const lastAvailableChapterA = a.manhwa.lastAvailableChapter ?? 0;
-        const lastAvailableChapterB = b.manhwa.lastAvailableChapter ?? 0;
-        comparison =
-          lastAvailableChapterA - a.lastReadChapter - (lastAvailableChapterB - b.lastReadChapter);
-        break;
-      }
-    }
-
-    return filters.value.sortOrder === 'asc' ? comparison : -comparison;
-  });
-
-  return result;
+  return sortManhwas(result, filters.value.sortBy, filters.value.sortOrder);
 });
 </script>
 

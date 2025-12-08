@@ -14,3 +14,7 @@ export enum SORT_ORDERS {
   desc = 'Descending',
 }
 export type SortOrder = keyof typeof SORT_ORDERS;
+
+export type SortPreferences = Record<string, { sortBy: SortOption; sortOrder: SortOrder }>;
+
+export const SORT_PREFS_STORAGE_KEY = 'manhwa-sort-prefs';
