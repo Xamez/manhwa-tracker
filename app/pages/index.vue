@@ -42,8 +42,27 @@ const filters = ref<Filters>(DEFAULT_FILTERS);
 
 useSortPreferences(filters);
 
+const history = ref<(() => Promise<void>)[]>([]);
+
+const addToHistory = (undoFn: () => Promise<void>) => {
+  history.value.push(undoFn);
+};
+
+provide('addToHistory', addToHistory);
+
+const handleKeyDown = async (event: KeyboardEvent) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+    event.preventDefault();
+    const undoFn = history.value.pop();
+    if (undoFn) {
+      await undoFn();
+    }
+  }
+};
+
 onMounted(() => {
   if (import.meta.client) {
+    window.addEventListener('keydown', handleKeyDown);
     try {
       const savedFilters = localStorage.getItem(FILTERS_STORAGE_KEY);
       if (savedFilters) {
@@ -52,6 +71,12 @@ onMounted(() => {
     } catch (error) {
       console.error('Failed to load filters from localStorage:', error);
     }
+  }
+});
+
+onUnmounted(() => {
+  if (import.meta.client) {
+    window.removeEventListener('keydown', handleKeyDown);
   }
 });
 

@@ -84,7 +84,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 
 const { userManhwa } = defineProps<{ userManhwa: UserManhwa }>();
@@ -93,6 +93,7 @@ const currentChapter = ref(userManhwa.lastReadChapter);
 const showUpdateScreen = ref(false);
 
 const router = useRouter();
+const addToHistory = inject<(fn: () => Promise<void>) => void>('addToHistory');
 
 const DOUBLE_CLICK_THRESHOLD = 175; // milliseconds
 let lastClickTime = 0;
@@ -124,8 +125,15 @@ function handleNavigationClick() {
   router.push(`/user-manhwa/${userManhwa.manhwa.id}`);
 }
 
-async function updateChapter(newChapter: number) {
+async function updateChapter(newChapter: number, skipHistory = false) {
   const previousChapter = currentChapter.value;
+
+  if (!skipHistory && addToHistory) {
+    addToHistory(async () => {
+      await updateChapter(previousChapter, true);
+    });
+  }
+
   currentChapter.value = newChapter;
 
   const body = {
