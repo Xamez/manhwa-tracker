@@ -49,15 +49,15 @@
           <h2 class="m-0 mb-2 text-sm md:text-md font-semibold">{{ userManhwa.manhwa.title }}</h2>
           <div class="flex items-center justify-between gap-2">
             <p class="my-1 text-xs">
-              Chapter:
+              {{ chapterLabel }}
               <a
                 v-if="userManhwa.readingUrl"
-                :href="generateManhwaUrl(userManhwa.readingUrl, currentChapter)"
+                :href="generateManhwaUrl(userManhwa.readingUrl, displayChapter)"
                 target="_blank"
                 class="text-primary font-bold underline cursor-pointer group/link inline-block relative"
                 @click.stop
               >
-                {{ currentChapter }}
+                {{ displayChapter }}
                 <Icon
                   name="lucide:link"
                   size="12"
@@ -66,7 +66,7 @@
                 />
               </a>
               <span v-else class="text-primary font-bold">
-                {{ currentChapter }}
+                {{ displayChapter }}
               </span>
             </p>
             <button
@@ -84,13 +84,29 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, inject } from 'vue';
+import { ref, inject, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const { userManhwa } = defineProps<{ userManhwa: UserManhwa }>();
 
 const currentChapter = ref(userManhwa.lastReadChapter);
 const showUpdateScreen = ref(false);
+
+const hasNewChapter = computed(() => {
+  return (
+    userManhwa.status === 'reading' &&
+    userManhwa.manhwa.lastAvailableChapter &&
+    userManhwa.manhwa.lastAvailableChapter > currentChapter.value
+  );
+});
+
+const displayChapter = computed(() => {
+  return hasNewChapter.value ? currentChapter.value + 1 : currentChapter.value;
+});
+
+const chapterLabel = computed(() => {
+  return hasNewChapter.value ? 'Next:' : 'Chapter:';
+});
 
 const router = useRouter();
 const addToHistory = inject<(fn: () => Promise<void>) => void>('addToHistory');
