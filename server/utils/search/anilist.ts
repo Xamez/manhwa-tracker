@@ -1,5 +1,6 @@
 import type { SearchProvider } from './types';
 import type { ManhwaSearchResult } from '~~/shared/types/manhwa-search-result';
+import { ManhwaSource, encodeId } from '../id-encoding';
 
 export class AniListSearchProvider implements SearchProvider {
   name = 'AniList';
@@ -51,7 +52,7 @@ export class AniListSearchProvider implements SearchProvider {
       const mediaList = data.data.Page.media;
 
       return mediaList.map((media: any) => ({
-        id: media.id,
+        id: encodeId(ManhwaSource.AniList, media.id),
         title: media.title.english || media.title.romaji || media.synonyms[0] || 'Unknown Title',
         coverImage: media.coverImage.medium,
       }));

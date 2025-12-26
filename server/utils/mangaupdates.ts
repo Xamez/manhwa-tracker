@@ -1,11 +1,9 @@
 import type { Manhwa } from '~~/shared/types/manhwa';
+import { ManhwaSource, encodeId } from './id-encoding';
 
-// ID is negative to differentiate from AniList IDs
 export async function fetchMangaUpdatesDetails(id: number): Promise<Manhwa | null> {
-  const seriesId = Math.abs(id);
-
   try {
-    const response = await fetch(`https://api.mangaupdates.com/v1/series/${seriesId}`, {
+    const response = await fetch(`https://api.mangaupdates.com/v1/series/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -28,7 +26,7 @@ export async function fetchMangaUpdatesDetails(id: number): Promise<Manhwa | nul
     }
 
     return {
-      id: -data.series_id,
+      id: encodeId(ManhwaSource.MangaUpdates, data.series_id),
       title: data.title,
       bannerImage: null,
       coverImage: data.image?.url?.original || data.image?.url?.thumb || null,

@@ -1,5 +1,6 @@
 import type { SearchProvider } from './types';
 import type { ManhwaSearchResult } from '~~/shared/types/manhwa-search-result';
+import { ManhwaSource, encodeId } from '../id-encoding';
 
 export class MangaUpdatesSearchProvider implements SearchProvider {
   name = 'MangaUpdates';
@@ -32,7 +33,7 @@ export class MangaUpdatesSearchProvider implements SearchProvider {
       return data.results.map((item: any) => {
         const record = item.record;
         return {
-          id: -record.series_id,
+          id: encodeId(ManhwaSource.MangaUpdates, record.series_id),
           title: record.title,
           coverImage: record.image?.url?.thumb || record.image?.url?.original || null,
         };
