@@ -5,14 +5,13 @@ export default defineNuxtRouteMiddleware(async to => {
     await fetchCurrentUser();
   }
 
-  if (to.path === '/login' || to.path === '/register') {
-    if (user.value) {
-      return navigateTo('/');
-    }
-    return;
+  const isAuthPage = ['/login', '/register'].includes(to.path);
+
+  if (isAuthPage && user.value) {
+    return navigateTo('/');
   }
 
-  if (!user.value) {
+  if (!isAuthPage && !user.value) {
     return navigateTo('/login');
   }
 });

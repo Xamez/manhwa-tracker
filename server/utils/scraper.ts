@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import type { Db } from 'mongodb';
 import { READING_SOURCES, type ReadingSource } from '../../shared/types/reading-source';
+import { h } from 'vue';
 
 const headers = {
   'User-Agent':
@@ -66,6 +67,13 @@ export async function suggestReadingUrlDemonicScans(manhwaTitle: string): Promis
     const response = await fetch(searchUrl, { headers });
     const html = await response.text();
 
+    if (html.includes('Just a moment...')) {
+      console.error(
+        `Access forbidden when suggesting reading URL from ${READING_SOURCES.demonicscans.name}`,
+      );
+      return null;
+    }
+
     const $ = cheerio.load(html);
     const firstResult = $('a[href^="/manga/"]').first();
     const href = firstResult.attr('href');
@@ -96,6 +104,13 @@ export async function suggestReadingUrlManhuaUS(manhwaTitle: string): Promise<st
       body: formData,
     });
 
+    if (response.status === 403) {
+      console.error(
+        `Access forbidden when suggesting reading URL from ${READING_SOURCES.manhuaus.name}`,
+      );
+      return null;
+    }
+
     const json = await response.json();
 
     if (json.success && json.data && json.data.length > 0) {
@@ -117,7 +132,6 @@ export async function suggestReadingUrl(
     manhuaus: suggestReadingUrlManhuaUS,
     demonicscans: suggestReadingUrlDemonicScans,
   };
-
   const sources = [
     sourceMap[readingSource],
     ...Object.values(sourceMap).filter(fn => fn !== sourceMap[readingSource]),

@@ -11,9 +11,9 @@ export default defineEventHandler(async event => {
 
   const db = useDatabase();
 
-  const existingUserByEmail = await db.collection('users').findOne({
-    email: { $regex: new RegExp(`^${email}$`, 'i') },
-  });
+  const existingUserByEmail = await db
+    .collection('users')
+    .findOne({ email }, { collation: { locale: 'en', strength: 2 } });
   if (existingUserByEmail) {
     throw createError({
       statusCode: 409,
@@ -21,9 +21,9 @@ export default defineEventHandler(async event => {
     });
   }
 
-  const existingUserByUsername = await db.collection('users').findOne({
-    username: { $regex: new RegExp(`^${username}$`, 'i') },
-  });
+  const existingUserByUsername = await db
+    .collection('users')
+    .findOne({ username }, { collation: { locale: 'en', strength: 2 } });
   if (existingUserByUsername) {
     throw createError({
       statusCode: 409,

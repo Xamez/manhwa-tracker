@@ -1,7 +1,7 @@
 export default defineEventHandler(async event => {
   const path = event.path || '';
 
-  if (path.startsWith('/api/auth/') || path === '/api/user/me') {
+  if (path.startsWith('/api/auth/')) {
     return;
   }
 

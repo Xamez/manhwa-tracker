@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { scrapAndUpdateLastChapter } from '~~/server/utils/scraper';
 
 export default defineEventHandler(async event => {
-  const user: AuthUser = event.context.user;
+  const user: User = event.context.user;
   const userManhwa = (await readBody(event)) as UserManhwa;
 
   if (!userManhwa.manhwa.id) {
@@ -28,12 +28,12 @@ export default defineEventHandler(async event => {
     const manhwaDoc = await manhwasCollection.findOne({ id: manhwaId });
 
     if (!manhwaDoc) {
-      const manhwaDetails = await fetchAniListDetails(manhwaId);
+      const manhwaDetails = await fetchManhwaDetails(manhwaId);
 
       if (!manhwaDetails) {
         throw createError({
           statusCode: 404,
-          message: 'Manhwa not found on AniList',
+          message: 'Manhwa not found',
         });
       }
 

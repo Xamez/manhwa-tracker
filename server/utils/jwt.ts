@@ -19,7 +19,7 @@ export async function createRefreshToken(authUser: AuthUser): Promise<string> {
     .sign(secret);
 }
 
-async function verifyToken(token: string): Promise<AuthUser | null> {
+async function verifyToken(token: string): Promise<User | null> {
   try {
     const { payload } = await jwtVerify(token, secret);
     const authUser = payload as AuthUser;
@@ -31,16 +31,21 @@ async function verifyToken(token: string): Promise<AuthUser | null> {
       return null;
     }
 
-    return authUser;
+    return {
+      id: existingUser._id.toString(),
+      email: existingUser.email,
+      username: existingUser.username,
+      preferredReadingSource: existingUser.preferredReadingSource,
+    };
   } catch {
     return null;
   }
 }
 
-export async function verifyAccessToken(token: string): Promise<AuthUser | null> {
+export async function verifyAccessToken(token: string): Promise<User | null> {
   return verifyToken(token);
 }
 
-export async function verifyRefreshToken(token: string): Promise<AuthUser | null> {
+export async function verifyRefreshToken(token: string): Promise<User | null> {
   return verifyToken(token);
 }

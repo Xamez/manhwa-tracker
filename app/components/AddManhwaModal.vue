@@ -73,7 +73,7 @@ async function handleSearch() {
     }
     isSearching.value = true;
     try {
-      const data = await $fetch('/api/anilist/search', {
+      const data = await $fetch('/api/manhwa/search', {
         method: 'POST',
         body: { search: searchQuery.value },
       });

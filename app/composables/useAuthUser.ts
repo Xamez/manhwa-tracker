@@ -54,24 +54,26 @@ export function useAuthUser() {
 
     try {
       response = await requestFetch<User>('/api/user/me');
-
-      if (!response) {
-        await requestFetch('/api/auth/refresh', {
-          method: 'POST',
-          async onResponse({ response }: { response: any }) {
-            if (import.meta.server && event) {
-              const { appendResponseHeader } = await import('h3');
-              const setCookie = response.headers.get('set-cookie');
-              if (setCookie) {
-                appendResponseHeader(event, 'set-cookie', setCookie);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        try {
+          await requestFetch('/api/auth/refresh', {
+            method: 'POST',
+            async onResponse({ response }: { response: any }) {
+              if (import.meta.server && event) {
+                const { appendResponseHeader } = await import('h3');
+                const setCookie = response.headers.get('set-cookie');
+                if (setCookie) {
+                  appendResponseHeader(event, 'set-cookie', setCookie);
+                }
               }
-            }
-          },
-        });
-        response = await requestFetch<User>('/api/user/me');
+            },
+          });
+          response = await requestFetch<User>('/api/user/me');
+        } catch (e) {
+          // Refresh failed or retry failed
+        }
       }
-    } catch (error) {
-      console.error('Failed to fetch current user:', error);
     }
 
     setCurrentUser(response);

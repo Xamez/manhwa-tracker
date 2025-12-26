@@ -32,9 +32,7 @@ import { useSortPreferences } from '~/composables/useSortPreferences';
 import { sortManhwas } from '~/utils/sortManhwas';
 import { DEFAULT_FILTERS, FILTERS_STORAGE_KEY, type Filters } from '~~/shared/types/filters';
 
-const { data: userManhwas } = await useFetch<UserManhwa[]>('/api/user-manhwa', {
-  key: 'user-manhwa',
-});
+const { data: userManhwas } = await useFetch<UserManhwa[]>('/api/user-manhwa');
 
 const showMobileFilters = ref(false);
 

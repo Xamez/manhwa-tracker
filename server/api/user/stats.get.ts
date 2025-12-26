@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 const MINUTES_PER_CHAPTER = 4;
 
 export default defineEventHandler(async event => {
-  const user: AuthUser = event.context.user;
+  const user: User = event.context.user;
 
   try {
     const db = useDatabase();

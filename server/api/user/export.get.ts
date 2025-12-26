@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { READING_STATUS, type ReadingStatus } from '~~/shared/types/reading-status';
 
 export default defineEventHandler(async event => {
-  const user: AuthUser = event.context.user;
+  const user: User = event.context.user;
 
   try {
     const db = useDatabase();
