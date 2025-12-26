@@ -49,13 +49,25 @@ export function useAuthUser() {
     }
 
     const requestFetch = import.meta.server ? useRequestFetch() : $fetch;
+    const event = import.meta.server ? useRequestEvent() : undefined;
     let response: User | null = null;
 
     try {
       response = await requestFetch<User>('/api/user/me');
 
       if (!response) {
-        await requestFetch('/api/auth/refresh', { method: 'POST' });
+        await requestFetch('/api/auth/refresh', {
+          method: 'POST',
+          async onResponse({ response }: { response: any }) {
+            if (import.meta.server && event) {
+              const { appendResponseHeader } = await import('h3');
+              const setCookie = response.headers.get('set-cookie');
+              if (setCookie) {
+                appendResponseHeader(event, 'set-cookie', setCookie);
+              }
+            }
+          },
+        });
         response = await requestFetch<User>('/api/user/me');
       }
     } catch (error) {
