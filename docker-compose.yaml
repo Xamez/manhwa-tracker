@@ -20,6 +20,15 @@ services:
     ports:
       - '8081:8081'
 
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    ports:
+      - '8191:8191'
+
 volumes:
   mongo-data:
     driver: local

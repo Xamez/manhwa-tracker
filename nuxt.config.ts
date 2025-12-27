@@ -12,9 +12,13 @@ export default defineNuxtConfig({
         {
           name: 'description',
           content:
-            'Track your favorite manhwa, manhua and get notified when new chapters are released.',
+            'Track your read manhwas, get notifications for new chapters, and manage your reading list with Manhwa Tracker.',
         },
-        { name: 'keywords', content: 'manhwa, manga, tracker, notifications, reading list' },
+        {
+          name: 'keywords',
+          content:
+            'manhwa, manhua, manga, tracker, notifications, reading list, sorting, organization',
+        },
       ],
     },
   },
@@ -23,7 +27,7 @@ export default defineNuxtConfig({
       tasks: true,
     },
     scheduledTasks: {
-      '0 */4 * * *': ['manhwa:retrieveLastChapters'],
+      '0 */12 * * *': ['manhwa:retrieveLastChapters'],
     },
   },
   modules: ['@nuxt/icon', '@nuxt/eslint'],
@@ -32,6 +36,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     mongodbUri: '', // Provided via NUXT_MONGODB_URI env variable
     jwtSecret: '', // Provided via NUXT_JWT_SECRET env variable
+    flaresolverrUrl: '', // Provided via NUXT_FLARESOLVERR_URL env variable
     public: {
       env: '', // Provided via NUXT_PUBLIC_ENV env variable
     },

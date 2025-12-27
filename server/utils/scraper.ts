@@ -1,7 +1,6 @@
 import * as cheerio from 'cheerio';
 import type { Db } from 'mongodb';
 import { READING_SOURCES, type ReadingSource } from '../../shared/types/reading-source';
-import { h } from 'vue';
 
 const headers = {
   'User-Agent':
@@ -14,53 +13,63 @@ const headers = {
 const DEMONIC_SCANS_URL = READING_SOURCES.demonicscans.url;
 const MANHUA_US_URL = READING_SOURCES.manhuaus.url;
 
-async function scrapLastChapterDemonicScans(url: string): Promise<number | null> {
+async function scrapLastChapterDemonicScans(
+  url: string,
+  manhwaTitle?: string,
+): Promise<number | null> {
   try {
     const response = await fetch(url, { headers: { ...headers, Referer: DEMONIC_SCANS_URL } });
     const html = await response.text();
-
-    const $ = cheerio.load(html);
-    console.log($.html());
-
-    const firstLi = $('#chapters-list li').first();
-    const link = firstLi.find('a');
-
-    link.find('span').remove();
-    const chapterText = link.text().trim();
-    const chapterNumber = chapterText.replace('Chapter ', '').trim();
-
-    return parseInt(chapterNumber, 10);
+    return parseDemonicScans(html);
   } catch (error) {
-    console.error(`Error scraping last chapter from ${READING_SOURCES.demonicscans.name}:`, error);
+    const titleMsg = manhwaTitle ? ` for '${manhwaTitle}'` : '';
+    console.warn(
+      `Failed to scrape last chapter from ${READING_SOURCES.demonicscans.name}${titleMsg}:`,
+      error,
+    );
     return null;
   }
 }
 
-async function scrapLastChapterManhuaUS(url: string): Promise<number | null> {
+async function scrapLastChapterManhuaUS(url: string, manhwaTitle?: string): Promise<number | null> {
   try {
     const response = await fetch(url, { headers: { ...headers, Referer: MANHUA_US_URL } });
     const html = await response.text();
-
-    const $ = cheerio.load(html);
-
-    const firstLi = $('ul.main.version-chap li.wp-manga-chapter').first();
-    const link = firstLi.find('a');
-
-    const chapterText = link.text().trim();
-    const chapterNumber = chapterText.replace('Chapter ', '').trim();
-
-    return parseInt(chapterNumber, 10);
+    return parseManhuaUS(html);
   } catch (error) {
-    console.error(`Error scraping last chapter from ${READING_SOURCES.manhuaus.name}:`, error);
+    const titleMsg = manhwaTitle ? ` for '${manhwaTitle}'` : '';
+    console.warn(
+      `Failed to scrape last chapter from ${READING_SOURCES.manhuaus.name}${titleMsg}:`,
+      error,
+    );
     return null;
   }
 }
 
-export async function scrapLastChapter(url: string): Promise<number | null> {
+async function scrapLastChapterWithFlareSolverr(
+  url: string,
+  manhwaTitle?: string,
+): Promise<number | null> {
+  try {
+    const html = await fetchWithFlareSolverr(url);
+    if (url.includes(MANHUA_US_URL)) {
+      return parseManhuaUS(html);
+    } else if (url.includes(DEMONIC_SCANS_URL)) {
+      return parseDemonicScans(html);
+    }
+    return null;
+  } catch (error) {
+    const titleMsg = manhwaTitle ? ` for '${manhwaTitle}'` : '';
+    console.warn(`Failed to scrape with FlareSolverr${titleMsg}:`, error);
+    return null;
+  }
+}
+
+export async function scrapLastChapter(url: string, manhwaTitle?: string): Promise<number | null> {
   if (url.includes(MANHUA_US_URL)) {
-    return scrapLastChapterManhuaUS(url);
+    return scrapLastChapterManhuaUS(url, manhwaTitle);
   } else if (url.includes(DEMONIC_SCANS_URL)) {
-    return scrapLastChapterDemonicScans(url);
+    return scrapLastChapterDemonicScans(url, manhwaTitle);
   }
   return null;
 }
@@ -74,8 +83,8 @@ export async function suggestReadingUrlDemonicScans(manhwaTitle: string): Promis
     const html = await response.text();
 
     if (html.includes('Just a moment...')) {
-      console.error(
-        `Access forbidden when suggesting reading URL from ${READING_SOURCES.demonicscans.name}`,
+      console.warn(
+        `Access forbidden when suggesting reading URL for '${manhwaTitle}' from ${READING_SOURCES.demonicscans.name}`,
       );
       return null;
     }
@@ -88,9 +97,16 @@ export async function suggestReadingUrlDemonicScans(manhwaTitle: string): Promis
       return `${DEMONIC_SCANS_URL}${href}`;
     }
 
+    console.warn(
+      `No reading URL found for '${manhwaTitle}' on ${READING_SOURCES.demonicscans.name}`,
+    );
+
     return null;
   } catch (error) {
-    console.error(`Error suggesting reading URL from ${READING_SOURCES.demonicscans.name}:`, error);
+    console.warn(
+      `Unable to suggest a reading URL for '${manhwaTitle}' from ${READING_SOURCES.demonicscans.name}:`,
+      error,
+    );
     return null;
   }
 }
@@ -112,8 +128,8 @@ export async function suggestReadingUrlManhuaUS(manhwaTitle: string): Promise<st
     });
 
     if (response.status === 403) {
-      console.error(
-        `Access forbidden when suggesting reading URL from ${READING_SOURCES.manhuaus.name}`,
+      console.warn(
+        `Access forbidden when suggesting reading URL for '${manhwaTitle}' from ${READING_SOURCES.manhuaus.name}`,
       );
       return null;
     }
@@ -126,7 +142,10 @@ export async function suggestReadingUrlManhuaUS(manhwaTitle: string): Promise<st
 
     return null;
   } catch (error) {
-    console.error(`Error suggesting reading URL from ${READING_SOURCES.manhuaus.name}:`, error);
+    console.warn(
+      `Failed to suggest reading URL for '${manhwaTitle}' from ${READING_SOURCES.manhuaus.name}:`,
+      error,
+    );
     return null;
   }
 }
@@ -141,7 +160,9 @@ export async function suggestReadingUrl(
   };
   const sources = [
     sourceMap[readingSource],
-    ...Object.values(sourceMap).filter(fn => fn !== sourceMap[readingSource]),
+    ...Object.entries(sourceMap)
+      .filter(([key]) => key !== readingSource)
+      .map(([, func]) => func),
   ];
 
   for (const getUrl of sources) {
@@ -152,19 +173,41 @@ export async function suggestReadingUrl(
   return null;
 }
 
+async function updateManhwaChapter(db: Db, manhwaId: number, chapter: number) {
+  await db
+    .collection('manhwas')
+    .updateOne({ id: manhwaId }, { $set: { lastAvailableChapter: chapter } });
+  console.log(`Updated manhwaId ${manhwaId} to chapter ${chapter}`);
+}
+
 export async function scrapAndUpdateLastChapter(
   db: Db,
   manhwaId: number,
   readingUrl: string,
   lastAvailableChapter: number,
+  manhwaTitle?: string,
 ): Promise<void> {
   console.log(`Processing manhwaId: ${manhwaId} from URL: ${readingUrl}`);
-  const lastChapter = await scrapLastChapter(readingUrl);
+  const lastChapter = await scrapLastChapter(readingUrl, manhwaTitle);
+
   if (lastChapter && lastChapter > lastAvailableChapter) {
-    await db
-      .collection('manhwas')
-      .updateOne({ id: manhwaId }, { $set: { lastAvailableChapter: lastChapter } });
-    console.log(`Updated manhwaId ${manhwaId} to chapter ${lastChapter}`);
+    await updateManhwaChapter(db, manhwaId, lastChapter);
+  } else if (!lastChapter) {
+    console.log(`Fast scrape failed for ${readingUrl}, trying FlareSolverr in background...`);
+    scrapLastChapterWithFlareSolverr(readingUrl, manhwaTitle)
+      .then(async chapter => {
+        if (chapter && chapter > lastAvailableChapter) {
+          await updateManhwaChapter(db, manhwaId, chapter);
+        } else {
+          console.log(
+            `Background FlareSolverr finished for manhwaId ${manhwaId}. Found chapter: ${chapter}. Last available: ${lastAvailableChapter}. No update needed.`,
+          );
+        }
+      })
+      .catch(err => {
+        const titleMsg = manhwaTitle ? ` for '${manhwaTitle}'` : '';
+        console.warn(`Background FlareSolverr failed${titleMsg}:`, err);
+      });
   } else {
     console.log(
       `No update needed for manhwaId ${manhwaId} (lastChapter: ${lastChapter}, found: ${lastAvailableChapter}).`,

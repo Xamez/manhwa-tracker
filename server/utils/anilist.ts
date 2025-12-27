@@ -74,7 +74,7 @@ export async function fetchAniListDetails(id: number): Promise<Manhwa | null> {
       coverImage: media.coverImage?.large,
       meanScore: media.meanScore,
       description: media.description || '',
-      alternativeTitles: media.synonyms || [],
+      alternativeTitles: [...(media.synonyms || []), media.title?.romaji].filter(Boolean),
       genres: media.genres || [],
       tags: media.tags || [],
       startDate,

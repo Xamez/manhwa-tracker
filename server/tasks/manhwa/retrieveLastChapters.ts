@@ -16,8 +16,11 @@ export default defineTask({
 
     for (const doc of response) {
       const { manhwaId, readingUrl } = doc;
-      await scrapAndUpdateLastChapter(db, manhwaId, readingUrl, 0);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const manhwa = await db
+        .collection('manhwas')
+        .findOne({ id: manhwaId }, { projection: { title: 1 } });
+      await scrapAndUpdateLastChapter(db, manhwaId, readingUrl, 0, manhwa?.title);
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
 
     return { result: 'Success' };
