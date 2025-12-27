@@ -5,9 +5,10 @@ import { h } from 'vue';
 
 const headers = {
   'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0',
+  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
   'Accept-Language': 'en-US,en;q=0.5',
+  'Accept-Encoding': 'gzip, deflate, br',
 };
 
 const DEMONIC_SCANS_URL = READING_SOURCES.demonicscans.url;
@@ -19,6 +20,8 @@ async function scrapLastChapterDemonicScans(url: string): Promise<number | null>
     const html = await response.text();
 
     const $ = cheerio.load(html);
+    console.log($.html());
+
     const firstLi = $('#chapters-list li').first();
     const link = firstLi.find('a');
 
@@ -39,6 +42,7 @@ async function scrapLastChapterManhuaUS(url: string): Promise<number | null> {
     const html = await response.text();
 
     const $ = cheerio.load(html);
+
     const firstLi = $('ul.main.version-chap li.wp-manga-chapter').first();
     const link = firstLi.find('a');
 
@@ -64,7 +68,9 @@ export async function scrapLastChapter(url: string): Promise<number | null> {
 export async function suggestReadingUrlDemonicScans(manhwaTitle: string): Promise<string | null> {
   try {
     const searchUrl = `${DEMONIC_SCANS_URL}/search.php?manga=${manhwaTitle}`;
-    const response = await fetch(searchUrl, { headers });
+    const response = await fetch(searchUrl, {
+      headers: { ...headers, Referer: DEMONIC_SCANS_URL },
+    });
     const html = await response.text();
 
     if (html.includes('Just a moment...')) {
@@ -100,6 +106,7 @@ export async function suggestReadingUrlManhuaUS(manhwaTitle: string): Promise<st
       headers: {
         'User-Agent': headers['User-Agent'],
         Referer: MANHUA_US_URL,
+        Origin: MANHUA_US_URL,
       },
       body: formData,
     });
@@ -151,7 +158,7 @@ export async function scrapAndUpdateLastChapter(
   readingUrl: string,
   lastAvailableChapter: number,
 ): Promise<void> {
-  console.log(`Processing manhwaId: ${manhwaId}`);
+  console.log(`Processing manhwaId: ${manhwaId} from URL: ${readingUrl}`);
   const lastChapter = await scrapLastChapter(readingUrl);
   if (lastChapter && lastChapter > lastAvailableChapter) {
     await db
@@ -159,6 +166,8 @@ export async function scrapAndUpdateLastChapter(
       .updateOne({ id: manhwaId }, { $set: { lastAvailableChapter: lastChapter } });
     console.log(`Updated manhwaId ${manhwaId} to chapter ${lastChapter}`);
   } else {
-    console.log(`No update needed for manhwaId ${manhwaId}`);
+    console.log(
+      `No update needed for manhwaId ${manhwaId} (lastChapter: ${lastChapter}, found: ${lastAvailableChapter}).`,
+    );
   }
 }
