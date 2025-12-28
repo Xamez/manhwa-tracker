@@ -43,13 +43,24 @@ export default defineEventHandler(async event => {
     let suggestedUrl: string | null = null;
 
     if (!userManhwaDoc?.readingUrl) {
-      suggestedUrl = await suggestReadingUrl(user.preferredReadingSource, manhwaData.title);
+      let suggestion = await suggestReadingUrl(user.preferredReadingSource, manhwaData.title);
 
-      if (!suggestedUrl && manhwaData.alternativeTitles.length > 0) {
-        suggestedUrl = await suggestReadingUrl(
+      if (!suggestion && manhwaData.alternativeTitles?.length > 0) {
+        suggestion = await suggestReadingUrl(
           user.preferredReadingSource,
           manhwaData.alternativeTitles[0],
         );
+      }
+
+      if (suggestion) {
+        suggestedUrl = suggestion.url;
+        if (
+          suggestion.lastChapter &&
+          (!manhwaData.lastAvailableChapter ||
+            suggestion.lastChapter > manhwaData.lastAvailableChapter)
+        ) {
+          manhwaData.lastAvailableChapter = suggestion.lastChapter;
+        }
       }
     }
 

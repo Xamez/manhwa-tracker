@@ -108,33 +108,7 @@ export async function fetchWithFlareSolverr(url: string): Promise<string> {
     if (json.status === 'ok' && json.solution) {
       return json.solution.response;
     } else {
-      // If it fails, it might be a session issue. Try once more with a new session.
-      console.warn('FlareSolverr request failed, retrying with new session...', json);
-
-      // Force new session
-      if (currentSession) {
-        await destroySession(currentSession);
-        currentSession = null;
-      }
-      session = await getSession();
-
-      const retryResponse = await fetch(FLARESOLVERR_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cmd: 'request.get',
-          url: url,
-          maxTimeout: 60000,
-          session: session,
-        }),
-      });
-
-      const retryJson = (await retryResponse.json()) as FlareSolverrResponse;
-      if (retryJson.status === 'ok' && retryJson.solution) {
-        return retryJson.solution.response;
-      }
-
-      throw new Error('FlareSolverr failed after retry: ' + JSON.stringify(retryJson));
+      throw new Error('FlareSolverr request failed: ' + JSON.stringify(json));
     }
   } catch (e) {
     console.error('FlareSolverr error:', e);

@@ -156,19 +156,40 @@
           </div>
 
           <div>
-            <label for="lastReadChapter" class="flex items-center gap-2 text-sm font-medium mb-2">
-              <span>Current Chapter</span>
-              <a
-                v-if="userManhwaData.readingUrl"
-                :href="generateManhwaUrl(userManhwaData.readingUrl, userManhwaData.lastReadChapter)"
-                target="_blank"
-                class="text-primary hover:text-primary-lighter"
-                title="Open chapter in new tab"
-                @click.stop
-              >
-                <Icon name="lucide:link" size="14" />
-              </a>
-            </label>
+            <div class="flex items-center justify-between mb-2">
+              <label for="lastReadChapter" class="flex items-center gap-2 text-sm font-medium">
+                <span>Current Chapter</span>
+                <a
+                  v-if="userManhwaData.readingUrl"
+                  :href="
+                    generateManhwaUrl(userManhwaData.readingUrl, userManhwaData.lastReadChapter)
+                  "
+                  target="_blank"
+                  class="text-primary hover:text-primary-lighter"
+                  title="Open chapter in new tab"
+                  @click.stop
+                >
+                  <Icon name="lucide:link" size="14" />
+                </a>
+              </label>
+              <div class="text-xs text-gray-400 flex items-center gap-1">
+                <span>Latest: {{ manhwa.lastAvailableChapter || '?' }}</span>
+                <button
+                  v-if="userManhwaData.readingUrl"
+                  type="button"
+                  class="text-primary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+                  :disabled="isRefreshingChapter"
+                  title="Refresh latest chapter"
+                  @click.stop.prevent="refreshChapter"
+                >
+                  <Icon
+                    name="lucide:refresh-cw"
+                    size="12"
+                    :class="{ 'animate-spin': isRefreshingChapter }"
+                  />
+                </button>
+              </div>
+            </div>
             <div class="relative">
               <input
                 id="lastReadChapter"
@@ -324,6 +345,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useChapterRefreshStore } from '~/stores/chapterRefresh';
 import { READING_STATUS } from '~~/shared/types/reading-status';
 
 const route = useRoute();
@@ -357,6 +379,40 @@ const userManhwaData = ref({
 const descriptionExpanded = ref(false);
 const notesExpanded = ref(false);
 const descriptionContentRef = ref<HTMLElement | null>(null);
+const { isRefreshing, setRefreshing } = useChapterRefreshState();
+
+const isRefreshingChapter = computed(() => {
+  return userManhwaId.value ? isRefreshing(userManhwaId.value) : false;
+});
+
+async function refreshChapter() {
+  if (!userManhwaId.value || !userManhwaData.value.readingUrl || isRefreshingChapter.value) return;
+
+  setRefreshing(userManhwaId.value, true);
+  const startTime = Date.now();
+
+  try {
+    const response = await $fetch<{ lastAvailableChapter: number | null }>(
+      `/api/user-manhwa/${userManhwaId.value}/refresh-chapter`,
+      {
+        method: 'POST',
+      },
+    );
+    if (response.lastAvailableChapter && manhwa.value) {
+      manhwa.value.lastAvailableChapter = response.lastAvailableChapter;
+    }
+  } catch (err) {
+    console.error('Failed to refresh chapter:', err);
+  } finally {
+    const elapsed = Date.now() - startTime;
+    if (elapsed < 500) {
+      await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
+    }
+    if (userManhwaId.value) {
+      setRefreshing(userManhwaId.value, false);
+    }
+  }
+}
 
 function collapseDescription() {
   if (descriptionContentRef.value) {

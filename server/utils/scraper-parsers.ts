@@ -22,3 +22,14 @@ export function parseManhuaUS(html: string): number | null {
 
   return parseInt(chapterNumber, 10);
 }
+
+export function parseMangakakalot(html: string): number | null {
+  const $ = cheerio.load(html);
+  const firstLi = $('#chapter .chapter-list div.row').first();
+  const link = firstLi.find('a');
+
+  const chapterText = link.text().trim();
+  const chapterNumber = chapterText.replace('Chapter ', '').trim();
+
+  return parseInt(chapterNumber, 10);
+}

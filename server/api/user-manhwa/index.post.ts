@@ -53,6 +53,7 @@ export default defineEventHandler(async event => {
         userManhwa.readingUrl,
         userManhwa.lastReadChapter,
         manhwaDetails.title,
+        true,
       );
     } else if (
       userManhwa.readingUrl &&
@@ -64,6 +65,7 @@ export default defineEventHandler(async event => {
         userManhwa.readingUrl,
         manhwaDoc.lastAvailableChapter || userManhwa.lastReadChapter,
         manhwaDoc.title,
+        true,
       );
     }
 

@@ -1,4 +1,4 @@
-export type ReadingSource = 'manhuaus' | 'demonicscans';
+export type ReadingSource = 'manhuaus' | 'demonicscans' | 'mangakakalot';
 
 export const READING_SOURCES: Record<ReadingSource, { name: string; url: string }> = {
   manhuaus: {
@@ -8,5 +8,9 @@ export const READING_SOURCES: Record<ReadingSource, { name: string; url: string 
   demonicscans: {
     name: 'Demonic Scans',
     url: 'https://demonicscans.org',
+  },
+  mangakakalot: {
+    name: 'Mangakakalot',
+    url: 'https://www.mangakakalot.gg',
   },
 };
