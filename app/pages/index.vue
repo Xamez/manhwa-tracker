@@ -49,6 +49,9 @@ const addToHistory = (undoFn: () => Promise<void>) => {
 provide('addToHistory', addToHistory);
 
 const handleKeyDown = async (event: KeyboardEvent) => {
+  const target = event.target as HTMLElement;
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+
   if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
     event.preventDefault();
     const undoFn = history.value.pop();

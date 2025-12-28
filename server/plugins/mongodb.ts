@@ -43,6 +43,7 @@ async function createCollectionsIfNotExist(db: Db) {
   }
   if (!collectionNames.includes('manhwas')) {
     await db.createCollection('manhwas');
+    await db.collection('manhwas').createIndex({ id: 1 }, { unique: true });
     console.log('Created manhwas collection');
   }
   if (!collectionNames.includes('user_manhwas')) {
