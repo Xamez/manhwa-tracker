@@ -345,7 +345,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useChapterRefreshStore } from '~/stores/chapterRefresh';
 import { READING_STATUS } from '~~/shared/types/reading-status';
 
 const route = useRoute();
