@@ -9,7 +9,7 @@ export default defineEventHandler(async event => {
     });
   }
 
-  const db = useDatabase();
+  const db = await useDatabase();
 
   const existingUserByEmail = await db
     .collection('users')
@@ -82,3 +82,4 @@ export default defineEventHandler(async event => {
 
   return { user };
 });
+

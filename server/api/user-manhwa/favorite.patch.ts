@@ -20,7 +20,7 @@ export default defineEventHandler(async event => {
   }
 
   try {
-    const db = useDatabase();
+    const db = await useDatabase();
     const userManhwasCollection = db.collection('user_manhwas');
 
     const result = await userManhwasCollection.updateOne(
@@ -54,3 +54,4 @@ export default defineEventHandler(async event => {
     });
   }
 });
+

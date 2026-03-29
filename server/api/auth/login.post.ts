@@ -9,7 +9,7 @@ export default defineEventHandler(async event => {
     });
   }
 
-  const db = useDatabase();
+  const db = await useDatabase();
 
   const userDb = await db.collection('users').findOne({ username });
   if (!userDb) {
@@ -58,3 +58,4 @@ export default defineEventHandler(async event => {
 
   return { user };
 });
+

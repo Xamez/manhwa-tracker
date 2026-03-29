@@ -6,7 +6,7 @@ export default defineEventHandler(async event => {
   const user: User = event.context.user;
 
   try {
-    const db = useDatabase();
+    const db = await useDatabase();
     const userManhwasCollection = db.collection('user_manhwas');
 
     const userManhwaDocs = await userManhwasCollection
@@ -60,3 +60,4 @@ export default defineEventHandler(async event => {
     });
   }
 });
+

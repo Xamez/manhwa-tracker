@@ -8,7 +8,7 @@ export default defineTask({
   async run({ payload: _payload, context: _context }) {
     console.log('Retrieving last chapters...');
 
-    const db = useDatabase();
+    const db = await useDatabase();
     const response = await db
       .collection('user_manhwas')
       .find({ readingUrl: { $ne: null } }, { projection: { manhwaId: 1, readingUrl: 1 } })
@@ -26,3 +26,4 @@ export default defineTask({
     return { result: 'Success' };
   },
 });
+

@@ -24,7 +24,7 @@ async function verifyToken(token: string): Promise<User | null> {
     const { payload } = await jwtVerify(token, secret);
     const authUser = payload as AuthUser;
 
-    const db = useDatabase();
+    const db = await useDatabase();
     const existingUser = await db.collection('users').findOne({ _id: new ObjectId(authUser.id) });
 
     if (!existingUser) {

@@ -14,7 +14,7 @@ export default defineEventHandler(async event => {
   const manhwaId = Number(id);
 
   try {
-    const db = useDatabase();
+    const db = await useDatabase();
     const userManhwasCollection = db.collection('user_manhwas');
 
     const userManhwaDoc = await userManhwasCollection.findOne({

@@ -13,7 +13,7 @@ export default defineEventHandler(async event => {
     });
   }
 
-  const db = useDatabase();
+  const db = await useDatabase();
 
   await db
     .collection('users')
@@ -27,3 +27,4 @@ export default defineEventHandler(async event => {
     preferredReadingSource,
   };
 });
+
