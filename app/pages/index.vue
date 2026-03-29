@@ -25,6 +25,7 @@
       <ManhwaGrid :user-manhwas="filteredManhwas" class="flex-1" />
     </div>
   </div>
+  <NuxtLink to="/test" class="fixed bottom-6 right-6">Files</NuxtLink>
 </template>
 
 <script lang="ts" setup>

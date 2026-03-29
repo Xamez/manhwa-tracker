@@ -1,8 +1,9 @@
 import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
+import { attachDatabasePool } from '@vercel/functions';
 import { setDatabase } from '../utils/mongodb';
 
-export default defineNitroPlugin(async nitroApp => {
+export default defineNitroPlugin(async (nitroApp: any) => {
   const config = useRuntimeConfig();
   const mongoUri = config.mongodbUri || '';
 
@@ -12,6 +13,7 @@ export default defineNitroPlugin(async nitroApp => {
 
   try {
     const mongoClient = new MongoClient(mongoUri);
+    attachDatabasePool(mongoClient);
     await mongoClient.connect();
 
     const db = mongoClient.db();

@@ -5,9 +5,7 @@
       class="flex items-center justify-between w-full text-left group"
       @click="notesExpanded = !notesExpanded"
     >
-      <span
-        class="text-lg font-semibold text-white group-hover:text-primary transition-colors"
-      >
+      <span class="text-lg font-semibold text-white group-hover:text-primary transition-colors">
         Personal Notes
       </span>
       <Icon

@@ -41,10 +41,7 @@
       <div class="flex-1 space-y-6">
         <div>
           <h1 class="text-3xl font-bold text-white mb-2">{{ manhwa.title }}</h1>
-          <div
-            v-if="manhwa.alternativeTitles.length > 0"
-            class="group relative inline-block mb-2"
-          >
+          <div v-if="manhwa.alternativeTitles.length > 0" class="group relative inline-block mb-2">
             <button class="text-sm text-white/60 hover:text-primary flex items-center gap-1">
               <Icon name="lucide:info" size="16" />
               <span>
@@ -86,10 +83,7 @@
 
         <div v-if="manhwa.description" class="text-white/80 hidden md:block">
           <h2 class="text-xl font-semibold text-white mb-2">Description</h2>
-          <div
-            v-dompurify-html="manhwa.description"
-            class="prose prose-invert max-h-[145px]"
-          ></div>
+          <div v-dompurify-html="manhwa.description" class="prose prose-invert max-h-[145px]"></div>
         </div>
       </div>
     </div>
