@@ -23,14 +23,6 @@ export default defineNuxtConfig({
       ],
     },
   },
-  nitro: {
-    experimental: {
-      tasks: true,
-    },
-    scheduledTasks: {
-      '0 */12 * * *': ['manhwa:retrieveLastChapters'],
-    },
-  },
   modules: ['@nuxt/icon', '@nuxt/eslint'],
   devtools: { enabled: true },
   css: ['@/assets/css/tailwind.css', '@/assets/css/global.css'],

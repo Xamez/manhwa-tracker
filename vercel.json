@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/_nitro/tasks/manhwa:retrieveLastChapters",
+      "path": "/api/cron/retrieve-last-chapters",
       "schedule": "0 0 19 * *"
     }
   ]
