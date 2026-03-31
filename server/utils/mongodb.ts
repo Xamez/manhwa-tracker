@@ -1,4 +1,3 @@
-import { attachDatabasePool } from '@vercel/functions';
 import type { Db, MongoClient } from 'mongodb';
 import { MongoClient as MongoClientCtor } from 'mongodb';
 
@@ -37,7 +36,6 @@ async function connectDatabase(): Promise<Db> {
   }
 
   const mongoClient: MongoClient = new MongoClientCtor(mongoUri);
-  attachDatabasePool(mongoClient);
   await mongoClient.connect();
 
   const db = mongoClient.db();
