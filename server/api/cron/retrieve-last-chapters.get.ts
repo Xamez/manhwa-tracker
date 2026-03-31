@@ -1,13 +1,6 @@
 import { scrapAndUpdateLastChapter } from '~~/server/utils/scraper';
 
 export default defineEventHandler(async event => {
-  const config = useRuntimeConfig();
-  const authHeader = getHeader(event, 'authorization');
-  if (authHeader !== `Bearer ${config.cronSecret}`) {
-    console.error('Unauthorized cron access:', authHeader, config.cronSecret);
-    throw createError({ statusCode: 401, message: 'Unauthorized' });
-  }
-
   console.log('Retrieving last chapters...');
 
   const db = await useDatabase();

@@ -27,7 +27,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['@/assets/css/tailwind.css', '@/assets/css/global.css'],
   runtimeConfig: {
-    cronSecret: process.env.CRON_SECRET || '', // Provided via CRON_SECRET
     mongodbUri: '', // Provided via NUXT_MONGODB_URI env variable
     jwtSecret: '', // Provided via NUXT_JWT_SECRET env variable
     flaresolverrUrl: '', // Provided via NUXT_FLARESOLVERR_URL env variable
