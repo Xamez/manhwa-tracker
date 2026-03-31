@@ -1,11 +1,7 @@
 export default defineEventHandler(async event => {
   const path = event.path || '';
 
-  if (path.startsWith('/api/auth/') || path === '/api/cron/') {
-    return;
-  }
-
-  if (!path.startsWith('/api/')) {
+  if (!path.startsWith('/api/') || path.startsWith('/api/auth/') || path === '/api/cron/') {
     return;
   }
 
